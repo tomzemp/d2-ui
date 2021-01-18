@@ -39,6 +39,7 @@ class UserSearch extends Component {
         context.d2.i18n.addStrings([
             'add_users_and_user_groups',
             'enter_names',
+            'max_suggestion_limit',
         ]);
     }
 
@@ -151,6 +152,9 @@ class UserSearch extends Component {
                         searchText={this.state.searchText}
                         classes={{}}
                         searchResultsCount={searchResultsCount}
+                        maxSuggestionsText={this.context.d2.i18n.getTranslation(
+                            'max_suggestion_limit'
+                        )}
                     />
                     <PermissionPicker
                         access={this.state.defaultAccess}

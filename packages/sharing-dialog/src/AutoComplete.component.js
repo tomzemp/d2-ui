@@ -73,7 +73,14 @@ let popperNode;
 
 class AutoComplete extends Component {
     render() {
-        const { classes, placeholderText, suggestions, searchText, searchResultsCount } = this.props;
+        const {
+            classes,
+            placeholderText,
+            suggestions,
+            searchText,
+            searchResultsCount,
+            maxSuggestionsText
+        } = this.props;
 
         return (
             <div className={classes.root}>
@@ -137,8 +144,7 @@ class AutoComplete extends Component {
                                                     key='suggestionMaxCountWarning'
                                                     disabled
                                                 >
-                                                    Displaying first {searchResultsCount} results. 
-                                                    Refine search for additional suggestions.
+                                                    {maxSuggestionsText}
                                                 </MenuItem>
                                             )}                                            
                                         </Paper>
@@ -161,6 +167,7 @@ AutoComplete.propTypes = {
     onItemSelected: PropTypes.func.isRequired,
     searchResultsCount: PropTypes.number.isRequired,
     suggestions: PropTypes.array.isRequired,
+    maxSuggestionsText: PropTypes.string,
 };
 
 AutoComplete.defaultProps = {
