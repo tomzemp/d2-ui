@@ -66,14 +66,14 @@ const styles = theme => ({
     suggestionPaper: {
         maxHeight: 100,
         overflow: 'auto',
-    },    
+    },
 });
 
 let popperNode;
 
 class AutoComplete extends Component {
     render() {
-        const { classes, placeholderText, suggestions, searchText } = this.props;
+        const { classes, placeholderText, suggestions, searchText, searchResultsCount } = this.props;
 
         return (
             <div className={classes.root}>
@@ -132,6 +132,15 @@ class AutoComplete extends Component {
                                                     />
                                                 );
                                             })}
+                                            {suggestions.length >= searchResultsCount && (
+                                                <MenuItem
+                                                    key='suggestionMaxCountWarning'
+                                                    disabled
+                                                >
+                                                    Displaying first {searchResultsCount} results. 
+                                                    Refine search for additional suggestions.
+                                                </MenuItem>
+                                            )}                                            
                                         </Paper>
                                     </Popper>
                                 )}
@@ -150,6 +159,7 @@ AutoComplete.propTypes = {
     placeholderText: PropTypes.string,
     onInputChanged: PropTypes.func.isRequired,
     onItemSelected: PropTypes.func.isRequired,
+    searchResultsCount: PropTypes.number.isRequired,
     suggestions: PropTypes.array.isRequired,
 };
 
