@@ -72,6 +72,10 @@ const styles = theme => ({
 let popperNode;
 
 class AutoComplete extends Component {
+
+    hasNoCurrentAccess = userOrGroup =>
+        this.props.currentAccessIds.indexOf(userOrGroup.id) === -1;
+
     render() {
         const { classes, placeholderText, suggestions, searchText } = this.props;
 
@@ -112,7 +116,8 @@ class AutoComplete extends Component {
                                             square
                                             style={{ width: popperNode ? popperNode.clientWidth : null }}
                                         >
-                                            {suggestions.map((suggestion, index) => {
+                                            {suggestions.filter(this.hasNoCurrentAccess)
+                                                .map((suggestion, index) => {
                                                 return (
                                                     <Suggestion
                                                         key={suggestion.id}
@@ -122,6 +127,7 @@ class AutoComplete extends Component {
                                                                 name:
                                                                     suggestion.displayName,
                                                                 id: suggestion.id,
+                                                                searchText: suggestion.searchText,
                                                             },
                                                         })}
                                                         isHighlighted={
@@ -147,6 +153,7 @@ class AutoComplete extends Component {
 
 AutoComplete.propTypes = {
     classes: PropTypes.object.isRequired,
+    currentAccessIds: PropTypes.array.isRequired,
     placeholderText: PropTypes.string,
     onInputChanged: PropTypes.func.isRequired,
     onItemSelected: PropTypes.func.isRequired,

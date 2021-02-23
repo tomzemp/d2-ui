@@ -30,7 +30,7 @@ const styles = {
     },
 };
 
-const searchDelay = 500;
+const searchDelay = 300;
 const searchResultsCount = 10;
 
 class UserSearch extends Component {
@@ -47,7 +47,10 @@ class UserSearch extends Component {
             meta: { canView: true, canEdit: true },
             data: { canView: false, canEdit: false },
         },
-        searchResult: [],
+        searchHash: {
+            '': [],
+        },
+        searchSuggestions: [],
         searchText: '',
     };
 
@@ -59,13 +62,13 @@ class UserSearch extends Component {
             });
     }
 
-    onItemSelected = selected => {
+    onItemSelected = (selected, searchText) => {
         // Material UI triggers an 'onUpdateInput' when a search result is clicked. Therefore, we
         // immediately pushes a new item to the search stream to prevent the stream from searching
         // for the item again.
         this.inputStream.next('');
 
-        const selection = this.state.searchResult.find(
+        const selection = this.state.searchHash[selected.searchText].find(
             r => r.id === selected.id
         );
 
@@ -88,31 +91,24 @@ class UserSearch extends Component {
 
     inputStream = new Subject();
 
-    hasNoCurrentAccess = userOrGroup =>
-        this.props.currentAccessIds.indexOf(userOrGroup.id) === -1;
-
     fetchSearchResult = searchText => {
-        if (searchText === '') {
-            this.handleSearchResult([]);
-        } else {
+        if (searchText !== '') {
             this.props.onSearch(searchText, searchResultsCount).then(({ users, userGroups }) => {
                 const addType = type => result => ({ ...result, type });
                 const searchResult = users
                     .map(addType('userAccess'))
-                    .filter(this.hasNoCurrentAccess)
                     .concat(
                         userGroups
                             .map(addType('userGroupAccess'))
-                            .filter(this.hasNoCurrentAccess)
-                    );
+                    )
+                    .map(item => Object.assign({},item,{searchText}));
 
-                this.handleSearchResult(searchResult);
+                this.setState(state => {
+                    const searchHash = Object.assign({},state.searchHash,{[searchText]: searchResult})
+                    return { searchHash, searchSuggestions: searchResult }
+                })
             });
         }
-    };
-
-    handleSearchResult = searchResult => {
-        this.setState({ searchResult });
     };
 
     onInputChanged = searchText => {
@@ -142,7 +138,7 @@ class UserSearch extends Component {
                 </div>
                 <div style={styles.innerContainer}>
                     <AutoComplete
-                        suggestions={this.state.searchResult}
+                        suggestions={this.state.searchHash[this.state.searchText] || this.state.searchSuggestions || []}
                         placeholderText={this.context.d2.i18n.getTranslation(
                             'enter_names'
                         )}
@@ -150,6 +146,7 @@ class UserSearch extends Component {
                         onInputChanged={this.onInputChanged}
                         searchText={this.state.searchText}
                         classes={{}}
+                        currentAccessIds={this.props.currentAccessIds}
                     />
                     <PermissionPicker
                         access={this.state.defaultAccess}
