@@ -30,7 +30,7 @@ const styles = {
     },
 };
 
-const searchDelay = 500;
+const searchDelay = 300;
 const searchResultsCount = 10;
 
 class UserSearch extends Component {
@@ -93,7 +93,7 @@ class UserSearch extends Component {
 
     fetchSearchResult = searchText => {
         if (searchText === '') {
-            this.handleSearchResult([]);
+            this.handleSearchResult([],'');
         } else {
             this.props.onSearch(searchText, searchResultsCount).then(({ users, userGroups }) => {
                 const addType = type => result => ({ ...result, type });
@@ -106,13 +106,15 @@ class UserSearch extends Component {
                             .filter(this.hasNoCurrentAccess)
                     );
 
-                this.handleSearchResult(searchResult);
+                this.handleSearchResult(searchResult, searchText);
             });
         }
     };
 
-    handleSearchResult = searchResult => {
-        this.setState({ searchResult });
+    handleSearchResult = (searchResult, searchText) => {
+        if (this.state.searchText === searchText) {
+            this.setState({ searchResult });    
+        }        
     };
 
     onInputChanged = searchText => {
